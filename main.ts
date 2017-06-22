@@ -27,14 +27,16 @@ let source = Observable.create(observer => {
         observer.next(numbers[index++]);
 
         if (index < length) {
-            setTimeout(produceValue, 2000);
+            setTimeout(produceValue, 250);
         } else {
             observer.complete();
         }
     }
 
     produceValue();
-});
+})
+    .map(n => n * 2)
+    .filter(n => n > 5);
 
 
 // source.subscribe(new MyObserver());
