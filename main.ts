@@ -19,11 +19,21 @@ class MyObserver implements Observer<number> {
 }
 
 let source = Observable.create(observer => {
-    for(let n of numbers) {
-        observer.next(n);
+
+    let index= 0;
+    let length = numbers.length;
+
+    let produceValue = () => {
+        observer.next(numbers[index++]);
+
+        if (index < length) {
+            setTimeout(produceValue, 2000);
+        } else {
+            observer.complete();
+        }
     }
 
-    observer.complete();
+    produceValue();
 });
 
 
