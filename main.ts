@@ -1,12 +1,6 @@
-// import { Observable, Observer } from 'rxjs/Rx';
+import {Observable, Observer} from 'rxjs';
 
-import { Observable } from 'rxjs/Observable';
-import { Observer } from 'rxjs/Observer';
-
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/map';
-
-let numbers = [1,5,10];
+let numbers = [1, 5, 10];
 // let source = Observable.from(numbers);
 
 class MyObserver implements Observer<number> {
@@ -24,9 +18,9 @@ class MyObserver implements Observer<number> {
     }
 }
 
-let source = Observable.create(observer => {
+let source_1 = Observable.create(observer => {
 
-    let index= 0;
+    let index = 0;
     let length = numbers.length;
 
     let produceValue = () => {
@@ -44,11 +38,41 @@ let source = Observable.create(observer => {
     .map(n => n * 2)
     .filter(n => n > 5);
 
-
 // source.subscribe(new MyObserver());
 
- source.subscribe(
-    value => console.log(`value: ${value}`),
+// source_1.subscribe(
+//    value => console.log(`value: ${value}`),
+//    e => console.error(`error: ${e}`),
+//    () => console.log('completed')
+// );
+
+/*
+ *
+ *  Module 3
+ *
+ * */
+
+let circle: HTMLElement;
+circle = document.getElementById('circle');
+
+let source = Observable.fromEvent(document, 'mousemove')
+    .map((e: MouseEvent) => {
+        return {
+            x: e.clientX,
+            y: e.clientY
+        }
+    })
+    .filter(val => val.x < 500)
+    .delay(250);
+
+// works only in html4
+function onNext(val) {
+    circle.style.left = val.x;
+    circle.style.top = val.y;
+}
+
+source.subscribe(
+    onNext,
     e => console.error(`error: ${e}`),
     () => console.log('completed')
- );
+);
