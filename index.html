@@ -17,12 +17,19 @@
     <body>
         <!--<div id="circle"></div>-->
 
-        <div>
-            <input type="text" id='input' />
+        <div class="search" hidden="hidden">
+            <div>
+                <input type="text" id='input' />
+            </div>
+
+            <div>
+                <ul id="results"></ul>
+            </div>
         </div>
 
-        <div>
-            <ul id="results"></ul>
+        <div class="movieList">
+            <button id="getMoviesBtn">Get movies</button>
+            <ul id="movies"></ul>
         </div>
 
         <script src="app.js"></script>
