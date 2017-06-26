@@ -1,6 +1,8 @@
 import { Observable, Observer } from 'rxjs/Rx';
 import * as $ from 'jquery';
 
+import { loadWithFetch, load } from './loader';
+
 let numbers = [1, 5, 10];
 // let source = Observable.from(numbers);
 
@@ -91,65 +93,66 @@ interface Movie {
     [propName: string]: any;
 }
 
-const retryStrategy = ({ attempts = 3, delay = 1000 } = {}) => {
-    return function (errors) {
-        return errors
-            .scan((acc, value) => {
-                return acc += 1;
-            }, 0)
-            .takeWhile(acc => acc < attempts)
-            .delay(delay);
-    }
-}
-
-const load = (path: string) => {
-    return Observable.create(observer => {
-        const xhr = new XMLHttpRequest();
-
-
-        // return Observable.fromEvent(xhr, 'load')
-        //     .map(...)
-
-        xhr.addEventListener('load', () => {
-            if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                observer.next(data);
-                observer.complete();
-            } else {
-                observer.error(xhr.statusText);
-            }
-        });
-
-        xhr.open('GET', path);
-        xhr.send();
-    })
-        // .retry(3)
-        .retryWhen(retryStrategy({ attempts: 5, delay: 2000 }));
-};
-
-function loadWithFetch(path: string): Observable<Movie[]> {
-    return Observable
-        .defer(() => {
-            return Observable.fromPromise(fetch(path).then(data => data.json()));
-        })
-        .retryWhen(retryStrategy({ attempts: 5, delay: 2000 }));
-};
-
 const renderMovies = (movies: Movie[]) => {
-    movies.forEach(movie => {
-        appendListItem(movie.title, movieList);
-    });
+    if (movies && movies.length) {
+        movies.forEach(movie => {
+            appendListItem(movie.title, movieList);
+        });
+    }
 };
 
-// loadMovies(moviesPath).subscribe(renderMovies);
+let subscription = load(moviesPath).subscribe(
+    renderMovies,
+    console.error,
+    () => console.log('completed')
+);
+
+subscription.unsubscribe();
 
 click
-    .flatMap(e => loadWithFetch(moviesPath))
+    .flatMap(e => load(moviesPath))
     .subscribe(
-    renderMovies,
+    (data: Movie[]) => renderMovies(data),
     err => console.error(err),
     () => console.log('completed')
-    )
+    );
+
+
+/**
+ *
+ *
+ * Module 4
+ *
+ */
+
+// Error handing
+
+// let source_6 = Observable.onErrorResumeNext(
+let source_6 = Observable.merge(
+    Observable.of(1),
+    Observable.of(2),
+    Observable.throw(new Error('Throw handled')),
+    Observable.from([4, 5])
+)  // works only for merge method
+    .catch((err) => {
+        console.error(`caught: ${err}`);
+        return Observable.of(3);
+    });
+
+let source_5 = Observable.create(observer => {
+    observer.next(1);
+    observer.next(2);
+    observer.error('Stop observing!');
+    // throw new Error('Stop observing unhandled!');
+    observer.next(3);
+    observer.complete();
+});
+
+// source_6.subscribe(
+//     console.log,
+//     console.error,
+//     () => console.log('completed'));
+
 
 /**
  *
